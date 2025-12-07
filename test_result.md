@@ -103,13 +103,28 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Building MSPN DEV website from GitHub code. User requested the following admin panel upgrades:
-  1. Center edit forms (modal style) - show all fields at once, remove step-by-step flow
-  2. Projects: Add image upload, proper editing, visibility toggle (public/private)
-  3. Admin Management: Edit username/password, delete admins, permission system (Can Manage Admins, Can View Private Projects, Can Access Private Storage)
-  4. Private Storage/Code Vault: New section with notes/files, edit/delete, visibility control, search
-  5. Skills: Remove percentage system, simple list only
-  6. UI: Keep design, make smoother and modern
+  Building MSPN DEV website from GitHub code. User requested the following features:
+  
+  PREVIOUS FEATURES (COMPLETED):
+  1. Center edit forms (modal style) - show all fields at once, remove step-by-step flow ✅
+  2. Projects: Add image upload, proper editing, visibility toggle (public/private) ✅
+  3. Admin Management: Edit username/password, delete admins, permission system ✅
+  4. Private Storage/Code Vault: New section with notes/files, edit/delete, visibility control, search ✅
+  5. Skills: Remove percentage system, simple list only ✅
+  6. UI: Keep design, make smoother and modern ✅
+  
+  NEW FEATURES (CURRENT ITERATION):
+  1. Private Storage - Add folder upload capability (select entire folders with multiple files)
+  2. Private Storage - Make search functional (search by title and tags)
+  3. Customer Chat System:
+     - Floating chat widget on public homepage (bottom-right corner)
+     - Customer enters name, email, phone, message
+     - Chat persists in localStorage (survives page refresh)
+     - Cross-device sync - customer can retrieve chat on any device using email/phone
+     - Two-way messaging - admin can reply, customer sees replies
+     - Admin panel "Messages" tab with all conversations
+     - Unread message counter badge
+     - Real-time conversation management
 
 backend:
   - task: "Admin permissions system"
