@@ -524,6 +524,9 @@ export default function App() {
           <p>{content?.footer?.text || '© MSPN DEV — All Rights Reserved'}</p>
         </div>
       </footer>
+
+      {/* Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }
