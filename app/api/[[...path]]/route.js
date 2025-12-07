@@ -80,7 +80,18 @@ async function handleRoute(request, { params }) {
 
       const admins = await getCollection('admins');
       const allAdmins = await admins.find({}).toArray();
-      const sanitizedAdmins = allAdmins.map(a => ({ id: a.id, username: a.username, role: a.role, createdAt: a.createdAt, createdBy: a.createdBy }));
+      const sanitizedAdmins = allAdmins.map(a => ({ 
+        id: a.id, 
+        username: a.username, 
+        role: a.role, 
+        createdAt: a.createdAt, 
+        createdBy: a.createdBy,
+        permissions: a.permissions || {
+          canManageAdmins: a.role === 'super_admin',
+          canViewPrivateProjects: true,
+          canAccessPrivateStorage: true
+        }
+      }));
       return handleCORS(NextResponse.json({ admins: sanitizedAdmins }));
     }
 
@@ -90,7 +101,7 @@ async function handleRoute(request, { params }) {
         return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
       }
 
-      const { username, password, role } = await request.json();
+      const { username, password, role, permissions } = await request.json();
       const admins = await getCollection('admins');
       const existing = await admins.findOne({ username });
 
@@ -99,17 +110,35 @@ async function handleRoute(request, { params }) {
       }
 
       const hashedPassword = hashPassword(password);
+      const defaultPermissions = {
+        canManageAdmins: false,
+        canViewPrivateProjects: true,
+        canAccessPrivateStorage: true
+      };
+
       const newAdmin = {
         id: uuidv4(),
         username,
         password: hashedPassword,
         role: role || 'admin',
+        permissions: role === 'super_admin' ? {
+          canManageAdmins: true,
+          canViewPrivateProjects: true,
+          canAccessPrivateStorage: true
+        } : (permissions || defaultPermissions),
         createdAt: new Date(),
         createdBy: authCheck.user.username
       };
 
       await admins.insertOne(newAdmin);
-      return handleCORS(NextResponse.json({ admin: { id: newAdmin.id, username: newAdmin.username, role: newAdmin.role } }));
+      return handleCORS(NextResponse.json({ 
+        admin: { 
+          id: newAdmin.id, 
+          username: newAdmin.username, 
+          role: newAdmin.role,
+          permissions: newAdmin.permissions 
+        } 
+      }));
     }
 
     if (route.startsWith('/admins/') && method === 'PUT') {
@@ -119,13 +148,13 @@ async function handleRoute(request, { params }) {
       }
 
       const adminId = route.split('/')[2];
-      const { username, password } = await request.json();
+      const { username, password, permissions } = await request.json();
       const admins = await getCollection('admins');
       
-      const updateData = { username };
-      if (password) {
-        updateData.password = hashPassword(password);
-      }
+      const updateData = {};
+      if (username) updateData.username = username;
+      if (password) updateData.password = hashPassword(password);
+      if (permissions) updateData.permissions = permissions;
 
       await admins.updateOne({ id: adminId }, { $set: updateData });
       return handleCORS(NextResponse.json({ success: true }));
