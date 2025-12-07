@@ -262,6 +262,54 @@ frontend:
       - working: true
         agent: "main"
         comment: "Enhanced UI with smooth transitions, hover effects, better spacing, and modern design patterns"
+        
+  - task: "Floating chat widget on homepage"
+    implemented: true
+    working: "NA"
+    file: "/app/components/ChatWidget.js, /app/app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created floating chat button (bottom-right) with popup modal. Includes customer form (name/email/phone), message history, localStorage persistence, cross-device sync, auto-polling for admin replies every 10s, unread counter badge"
+        
+  - task: "Admin Messages/Chat tab"
+    implemented: true
+    working: "NA"
+    file: "/app/app/admin/dashboard/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added Messages tab in admin dashboard with conversation list, unread badge counter, chat view, reply functionality, mark as read feature. Two-column layout: conversations list + selected chat view"
+        
+  - task: "Private Storage - Folder upload"
+    implemented: true
+    working: "NA"
+    file: "/app/app/admin/dashboard/page.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added folder selection capability using webkitdirectory attribute. UI shows 'Choose File' and 'Choose Folder' buttons. Handles multiple file selection from folders"
+        
+  - task: "Private Storage - Search functionality"
+    implemented: true
+    working: true
+    file: "/app/app/admin/dashboard/page.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Search already implemented - filters by title, content, and tags. Real-time filtering as user types"
 
 metadata:
   created_by: "main_agent"
