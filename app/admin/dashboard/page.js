@@ -116,6 +116,65 @@ export default function AdminDashboard() {
     router.push('/admin');
   };
 
+  const openChat = async (conversation) => {
+    setSelectedChat(conversation);
+    setReplyMessage('');
+    
+    // Mark as read
+    if (conversation.unreadCount > 0) {
+      try {
+        const headers = getAuthHeaders();
+        await fetch(`/api/chat/${conversation.id}/read`, {
+          method: 'PUT',
+          headers
+        });
+        
+        // Update local state
+        setConversations(prev => 
+          prev.map(c => c.id === conversation.id ? { ...c, unreadCount: 0 } : c)
+        );
+        setTotalUnread(prev => Math.max(0, prev - conversation.unreadCount));
+      } catch (error) {
+        console.error('Error marking as read:', error);
+      }
+    }
+  };
+
+  const sendReply = async () => {
+    if (!replyMessage.trim() || !selectedChat) return;
+
+    setSaving(true);
+    try {
+      const headers = getAuthHeaders();
+      const res = await fetch(`/api/chat/${selectedChat.id}/reply`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ message: replyMessage.trim() })
+      });
+
+      const data = await res.json();
+      
+      if (data.success) {
+        setSelectedChat(data.conversation);
+        setReplyMessage('');
+        
+        // Update conversations list
+        setConversations(prev => 
+          prev.map(c => c.id === selectedChat.id ? data.conversation : c)
+        );
+        
+        alert('Reply sent successfully!');
+      } else {
+        alert('Failed to send reply');
+      }
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      alert('Failed to send reply');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const saveContent = async () => {
     setSaving(true);
     try {
