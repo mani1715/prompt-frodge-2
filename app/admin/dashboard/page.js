@@ -1663,17 +1663,53 @@ function StorageModal({ open, data, admins, onClose, onSave, onFileUpload }) {
             </div>
           ) : (
             <div>
-              <Label>Upload File</Label>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="file"
-                    onChange={handleFileChange}
+              <Label>Upload File or Folder</Label>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('singleFileInput').click()}
                     disabled={uploading}
                     className="flex-1"
-                  />
-                  {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Choose File
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('folderInput').click()}
+                    disabled={uploading}
+                    className="flex-1"
+                  >
+                    <FolderLock className="h-4 w-4 mr-2" />
+                    Choose Folder
+                  </Button>
                 </div>
+                <input
+                  id="singleFileInput"
+                  type="file"
+                  onChange={handleFileChange}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                <input
+                  id="folderInput"
+                  type="file"
+                  webkitdirectory=""
+                  directory=""
+                  multiple
+                  onChange={handleFileChange}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                {uploading && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Uploading...</span>
+                  </div>
+                )}
                 {formData.fileName && (
                   <p className="text-sm text-muted-foreground">File: {formData.fileName}</p>
                 )}
