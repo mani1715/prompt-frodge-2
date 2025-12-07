@@ -479,6 +479,97 @@ async function handleRoute(request, { params }) {
       }
     }
 
+    // Private Storage Routes
+    if (route === '/storage' && method === 'GET') {
+      const authCheck = requireAuth(request);
+      if (authCheck.error) {
+        return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
+      }
+
+      const storage = await getCollection('private_storage');
+      const allItems = await storage.find({}).sort({ createdAt: -1 }).toArray();
+      
+      // Filter based on permissions and visibility
+      const visibleItems = allItems.filter(item => {
+        // Creator can always see their items
+        if (item.createdBy === authCheck.user.username) return true;
+        // Check if user is in visibleTo list
+        if (item.visibleTo && item.visibleTo.includes(authCheck.user.username)) return true;
+        // Super admin can see all
+        if (authCheck.user.role === 'super_admin') return true;
+        return false;
+      });
+
+      return handleCORS(NextResponse.json({ items: visibleItems }));
+    }
+
+    if (route === '/storage' && method === 'POST') {
+      const authCheck = requireAuth(request);
+      if (authCheck.error) {
+        return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
+      }
+
+      const itemData = await request.json();
+      const storage = await getCollection('private_storage');
+      const newItem = {
+        id: uuidv4(),
+        ...itemData,
+        createdBy: authCheck.user.username,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      await storage.insertOne(newItem);
+      return handleCORS(NextResponse.json({ item: newItem }));
+    }
+
+    if (route.startsWith('/storage/') && method === 'PUT') {
+      const authCheck = requireAuth(request);
+      if (authCheck.error) {
+        return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
+      }
+
+      const itemId = route.split('/')[2];
+      const updates = await request.json();
+      const storage = await getCollection('private_storage');
+      
+      // Verify ownership or super admin
+      const item = await storage.findOne({ id: itemId });
+      if (!item) {
+        return handleCORS(NextResponse.json({ error: 'Item not found' }, { status: 404 }));
+      }
+      
+      if (item.createdBy !== authCheck.user.username && authCheck.user.role !== 'super_admin') {
+        return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 403 }));
+      }
+
+      await storage.updateOne({ id: itemId }, { $set: { ...updates, updatedAt: new Date() } });
+      return handleCORS(NextResponse.json({ success: true }));
+    }
+
+    if (route.startsWith('/storage/') && method === 'DELETE') {
+      const authCheck = requireAuth(request);
+      if (authCheck.error) {
+        return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
+      }
+
+      const itemId = route.split('/')[2];
+      const storage = await getCollection('private_storage');
+      
+      // Verify ownership or super admin
+      const item = await storage.findOne({ id: itemId });
+      if (!item) {
+        return handleCORS(NextResponse.json({ error: 'Item not found' }, { status: 404 }));
+      }
+      
+      if (item.createdBy !== authCheck.user.username && authCheck.user.role !== 'super_admin') {
+        return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 403 }));
+      }
+
+      await storage.deleteOne({ id: itemId });
+      return handleCORS(NextResponse.json({ success: true }));
+    }
+
     // Upload Route
     if (route === '/upload' && method === 'POST') {
       const authCheck = requireAuth(request);
