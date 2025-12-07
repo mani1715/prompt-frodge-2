@@ -95,8 +95,8 @@ class MSPNBackendTester:
         
         # Test login with valid credentials
         login_data = {
-            "username": "admin",
-            "password": "admin123"
+            "username": "superadmin",
+            "password": "SuperAdmin123!"
         }
         
         response = self.make_request("POST", "/auth/login", login_data)
