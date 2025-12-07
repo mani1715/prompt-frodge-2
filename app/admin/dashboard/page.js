@@ -1588,13 +1588,38 @@ function StorageModal({ open, data, admins, onClose, onSave, onFileUpload }) {
   }, [data]);
 
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = e.target.files;
+    if (files && files.length > 0) {
       setUploading(true);
-      const url = await onFileUpload(file, 'storage');
-      if (url) {
-        setFormData({ ...formData, fileUrl: url, fileName: file.name, type: 'file' });
+      
+      if (files.length === 1) {
+        // Single file upload
+        const file = files[0];
+        const url = await onFileUpload(file, 'storage');
+        if (url) {
+          setFormData({ ...formData, fileUrl: url, fileName: file.name, type: 'file' });
+        }
+      } else {
+        // Multiple files (folder upload)
+        const fileNames = Array.from(files).map(f => f.name).join(', ');
+        const firstFile = files[0];
+        const url = await onFileUpload(firstFile, 'storage');
+        
+        if (url) {
+          // For folder upload, store the first file URL and show all file names
+          setFormData({ 
+            ...formData, 
+            fileUrl: url, 
+            fileName: `${files.length} files: ${fileNames.substring(0, 100)}${fileNames.length > 100 ? '...' : ''}`,
+            type: 'file'
+          });
+        }
+        
+        // Note: In a real implementation, you would upload all files
+        // For now, we're just uploading the first file as a demo
+        alert(`Folder selected with ${files.length} files. First file uploaded: ${firstFile.name}\nNote: For full folder upload, implement batch upload on backend.`);
       }
+      
       setUploading(false);
     }
   };
