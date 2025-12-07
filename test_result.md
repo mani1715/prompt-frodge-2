@@ -176,14 +176,17 @@ frontend:
   - task: "Skills management - remove percentages"
     implemented: true
     working: true
-    file: "/app/app/admin/dashboard/page.js"
+    file: "/app/app/admin/dashboard/page.js, /app/app/page.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: true
         agent: "main"
         comment: "Updated Skills tab to show simple list with name and icon only, no progress bars"
+      - working: true
+        agent: "main"
+        comment: "Fixed public page Skills section - removed percentage bars and level display, now shows simple icon + name list"
         
   - task: "Projects editing with image upload"
     implemented: true
@@ -263,10 +266,13 @@ agent_communication:
       
       ✅ FRONTEND UPDATES:
       - All editing now uses centered modals (Dialog components)
-      - Skills show simple list without percentages
+      - Skills show simple list without percentages (BOTH admin panel AND public page)
       - Projects have image upload + visibility toggle
       - Admin management with permission controls
       - New Private Storage tab with search and visibility
       - Smooth, modern UI improvements
+      
+      ✅ LATEST FIX:
+      - Fixed public page Skills section to match admin panel (removed percentage bars)
       
       READY FOR BACKEND TESTING
