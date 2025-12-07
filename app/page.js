@@ -267,19 +267,9 @@ export default function App() {
                 whileHover={{ scale: 1.05 }}
               >
                 <Card className="text-center h-full">
-                  <CardContent className="pt-6">
-                    <div className="text-4xl mb-3">{skill.icon}</div>
-                    <h3 className="font-semibold text-lg mb-2">{skill.name}</h3>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${skill.level}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, delay: 0.5 }}
-                        className="bg-primary h-2 rounded-full"
-                      />
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">{skill.level}%</p>
+                  <CardContent className="pt-6 pb-6">
+                    <div className="text-5xl mb-3">{skill.icon}</div>
+                    <h3 className="font-semibold text-lg">{skill.name}</h3>
                   </CardContent>
                 </Card>
               </motion.div>
