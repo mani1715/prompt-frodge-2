@@ -355,7 +355,28 @@ async function handleRoute(request, { params }) {
     // Projects Routes
     if (route === '/projects' && method === 'GET') {
       const projects = await getCollection('projects');
-      const allProjects = await projects.find({}).sort({ order: 1 }).toArray();
+      let allProjects = await projects.find({}).sort({ order: 1 }).toArray();
+      
+      // Check if request has auth (admin view) or public view
+      const authHeader = request.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const authCheck = requireAuth(request);
+        if (!authCheck.error) {
+          // Admin is viewing - filter based on role
+          if (authCheck.user.role !== 'super_admin') {
+            // Regular admins only see their own projects
+            allProjects = allProjects.filter(p => p.createdBy === authCheck.user.username);
+          }
+          // Super admin sees all projects
+        } else {
+          // Auth failed, show only public projects
+          allProjects = allProjects.filter(p => !p.isPrivate);
+        }
+      } else {
+        // Public view - only show non-private projects
+        allProjects = allProjects.filter(p => !p.isPrivate);
+      }
+      
       return handleCORS(NextResponse.json({ projects: allProjects }));
     }
 
@@ -370,6 +391,8 @@ async function handleRoute(request, { params }) {
       const newProject = {
         id: uuidv4(),
         ...projectData,
+        isPrivate: projectData.isPrivate || false,
+        createdBy: authCheck.user.username,
         order: projectData.order || 999,
         createdAt: new Date()
       };
