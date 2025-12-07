@@ -27,6 +27,10 @@ export default function AdminDashboard() {
   const [contactInfo, setContactInfo] = useState(null);
   const [admins, setAdmins] = useState([]);
   const [storageItems, setStorageItems] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const [totalUnread, setTotalUnread] = useState(0);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [replyMessage, setReplyMessage] = useState('');
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
   const [searchQuery, setSearchQuery] = useState('');
