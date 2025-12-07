@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Plus, Edit, Trash2, LogOut, Users, Home, ExternalLink, Eye, EyeOff, Upload, File, Search, FileText, FolderLock } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, LogOut, Users, Home, ExternalLink, Eye, EyeOff, Upload, File, Search, FileText, FolderLock, MessageSquare, Send } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 
