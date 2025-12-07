@@ -628,6 +628,204 @@ async function handleRoute(request, { params }) {
       }
     }
 
+    // ============================================
+    // CHAT SYSTEM APIs
+    // ============================================
+    
+    // Customer sends a message
+    if (route === '/chat/send' && method === 'POST') {
+      const { customerName, customerEmail, customerPhone, message } = await request.json();
+      
+      if (!customerName || !customerEmail || !message) {
+        return handleCORS(NextResponse.json({ error: 'Name, email and message are required' }, { status: 400 }));
+      }
+
+      const chats = await getCollection('chats');
+      
+      // Find existing conversation by email or phone
+      const existingChat = await chats.findOne({ 
+        $or: [
+          { customerEmail },
+          { customerPhone: customerPhone || null }
+        ]
+      });
+
+      const newMessage = {
+        id: uuidv4(),
+        sender: 'customer',
+        message,
+        timestamp: new Date(),
+        read: false
+      };
+
+      if (existingChat) {
+        // Update existing conversation
+        await chats.updateOne(
+          { id: existingChat.id },
+          { 
+            $push: { messages: newMessage },
+            $set: { 
+              lastMessageAt: new Date(),
+              customerName, // Update name in case it changed
+              customerPhone: customerPhone || existingChat.customerPhone
+            },
+            $inc: { unreadCount: 1 }
+          }
+        );
+        
+        const updatedChat = await chats.findOne({ id: existingChat.id });
+        return handleCORS(NextResponse.json({ 
+          success: true, 
+          chatId: existingChat.id,
+          conversation: updatedChat
+        }));
+      } else {
+        // Create new conversation
+        const newChat = {
+          id: uuidv4(),
+          customerName,
+          customerEmail,
+          customerPhone: customerPhone || '',
+          messages: [newMessage],
+          unreadCount: 1,
+          createdAt: new Date(),
+          lastMessageAt: new Date()
+        };
+
+        await chats.insertOne(newChat);
+        return handleCORS(NextResponse.json({ 
+          success: true, 
+          chatId: newChat.id,
+          conversation: newChat
+        }));
+      }
+    }
+
+    // Get chat history by email/phone (for cross-device sync)
+    if (route === '/chat/history' && method === 'GET') {
+      const { searchParams } = new URL(request.url);
+      const email = searchParams.get('email');
+      const phone = searchParams.get('phone');
+
+      if (!email && !phone) {
+        return handleCORS(NextResponse.json({ error: 'Email or phone required' }, { status: 400 }));
+      }
+
+      const chats = await getCollection('chats');
+      const query = {};
+      
+      if (email && phone) {
+        query.$or = [{ customerEmail: email }, { customerPhone: phone }];
+      } else if (email) {
+        query.customerEmail = email;
+      } else {
+        query.customerPhone = phone;
+      }
+
+      const chat = await chats.findOne(query);
+      
+      if (!chat) {
+        return handleCORS(NextResponse.json({ 
+          success: true, 
+          conversation: null 
+        }));
+      }
+
+      return handleCORS(NextResponse.json({ 
+        success: true, 
+        conversation: chat
+      }));
+    }
+
+    // Admin: Get all conversations
+    if (route === '/chat/conversations' && method === 'GET') {
+      const authCheck = requireAuth(request);
+      if (authCheck.error) {
+        return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
+      }
+
+      const chats = await getCollection('chats');
+      const conversations = await chats.find({}).sort({ lastMessageAt: -1 }).toArray();
+      
+      const totalUnread = conversations.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
+
+      return handleCORS(NextResponse.json({ 
+        success: true, 
+        conversations,
+        totalUnread
+      }));
+    }
+
+    // Admin: Reply to conversation
+    if (route.startsWith('/chat/') && route.endsWith('/reply') && method === 'POST') {
+      const authCheck = requireAuth(request);
+      if (authCheck.error) {
+        return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
+      }
+
+      const chatId = pathParams[1]; // Extract ID from /chat/:id/reply
+      const { message } = await request.json();
+
+      if (!message) {
+        return handleCORS(NextResponse.json({ error: 'Message is required' }, { status: 400 }));
+      }
+
+      const chats = await getCollection('chats');
+      const chat = await chats.findOne({ id: chatId });
+
+      if (!chat) {
+        return handleCORS(NextResponse.json({ error: 'Conversation not found' }, { status: 404 }));
+      }
+
+      const adminMessage = {
+        id: uuidv4(),
+        sender: 'admin',
+        message,
+        timestamp: new Date(),
+        read: false
+      };
+
+      await chats.updateOne(
+        { id: chatId },
+        { 
+          $push: { messages: adminMessage },
+          $set: { lastMessageAt: new Date() }
+        }
+      );
+
+      const updatedChat = await chats.findOne({ id: chatId });
+      return handleCORS(NextResponse.json({ 
+        success: true, 
+        conversation: updatedChat
+      }));
+    }
+
+    // Admin: Mark conversation as read
+    if (route.startsWith('/chat/') && route.endsWith('/read') && method === 'PUT') {
+      const authCheck = requireAuth(request);
+      if (authCheck.error) {
+        return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
+      }
+
+      const chatId = pathParams[1]; // Extract ID from /chat/:id/read
+      const chats = await getCollection('chats');
+
+      await chats.updateOne(
+        { id: chatId },
+        { 
+          $set: { 
+            unreadCount: 0,
+            'messages.$[elem].read': true 
+          }
+        },
+        {
+          arrayFilters: [{ 'elem.sender': 'customer', 'elem.read': false }]
+        }
+      );
+
+      return handleCORS(NextResponse.json({ success: true }));
+    }
+
     return handleCORS(NextResponse.json({ error: 'Route not found' }, { status: 404 }));
   } catch (error) {
     console.error('API Error:', error);
