@@ -887,6 +887,147 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Chat/Messages Tab */}
+          <TabsContent value="chat">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Conversations List */}
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Conversations</span>
+                    <button 
+                      onClick={fetchConversations}
+                      className="text-sm text-gray-600 hover:text-black"
+                    >
+                      Refresh
+                    </button>
+                  </CardTitle>
+                  <CardDescription>
+                    {conversations.length} total, {totalUnread} unread
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="max-h-[600px] overflow-y-auto">
+                    {conversations.length === 0 ? (
+                      <div className="p-8 text-center text-gray-500">
+                        <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p>No messages yet</p>
+                      </div>
+                    ) : (
+                      conversations.map((conv) => (
+                        <button
+                          key={conv.id}
+                          onClick={() => openChat(conv)}
+                          className={`w-full p-4 text-left border-b hover:bg-gray-50 transition-colors ${
+                            selectedChat?.id === conv.id ? 'bg-gray-100' : ''
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-1">
+                            <p className="font-medium">{conv.customerName}</p>
+                            {conv.unreadCount > 0 && (
+                              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                {conv.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-600 mb-1">{conv.customerEmail}</p>
+                          {conv.customerPhone && (
+                            <p className="text-xs text-gray-600 mb-2">{conv.customerPhone}</p>
+                          )}
+                          <p className="text-sm text-gray-700 truncate">
+                            {conv.messages[conv.messages.length - 1]?.message}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(conv.lastMessageAt).toLocaleString()}
+                          </p>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Chat View */}
+              <Card className="lg:col-span-2">
+                {!selectedChat ? (
+                  <CardContent className="flex items-center justify-center h-[600px] text-gray-500">
+                    <div className="text-center">
+                      <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <p>Select a conversation to view messages</p>
+                    </div>
+                  </CardContent>
+                ) : (
+                  <>
+                    <CardHeader className="border-b">
+                      <CardTitle>{selectedChat.customerName}</CardTitle>
+                      <CardDescription>
+                        {selectedChat.customerEmail}
+                        {selectedChat.customerPhone && ` • ${selectedChat.customerPhone}`}
+                      </CardDescription>
+                    </CardHeader>
+                    
+                    <CardContent className="p-0">
+                      {/* Messages */}
+                      <div className="max-h-[400px] overflow-y-auto p-4 space-y-3">
+                        {selectedChat.messages.map((msg) => (
+                          <div
+                            key={msg.id}
+                            className={`flex ${msg.sender === 'customer' ? 'justify-start' : 'justify-end'}`}
+                          >
+                            <div
+                              className={`max-w-[75%] px-4 py-2 rounded-lg ${
+                                msg.sender === 'customer'
+                                  ? 'bg-gray-100 text-gray-900'
+                                  : 'bg-black text-white'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-medium">
+                                  {msg.sender === 'customer' ? 'Customer' : 'You (Admin)'}
+                                </span>
+                              </div>
+                              <p className="text-sm">{msg.message}</p>
+                              <p className={`text-xs mt-1 ${
+                                msg.sender === 'customer' ? 'text-gray-500' : 'text-gray-300'
+                              }`}>
+                                {new Date(msg.timestamp).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Reply Form */}
+                      <div className="p-4 border-t">
+                        <Label className="mb-2 block">Reply to customer</Label>
+                        <div className="flex gap-2">
+                          <Textarea
+                            value={replyMessage}
+                            onChange={(e) => setReplyMessage(e.target.value)}
+                            placeholder="Type your reply..."
+                            rows={3}
+                            className="flex-1"
+                          />
+                          <Button 
+                            onClick={sendReply}
+                            disabled={saving || !replyMessage.trim()}
+                            className="self-end"
+                          >
+                            {saving ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Send className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+            </div>
+          </TabsContent>
+
           {/* Admins Tab */}
           {user?.role === 'super_admin' && (
             <TabsContent value="admins">
