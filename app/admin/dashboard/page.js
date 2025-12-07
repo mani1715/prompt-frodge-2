@@ -88,8 +88,26 @@ export default function AdminDashboard() {
       const storageRes = await fetch('/api/storage', { headers });
       const storageData = await storageRes.json();
       setStorageItems(storageData.items || []);
+
+      // Fetch chat conversations
+      await fetchConversations();
     } catch (error) {
       console.error('Error fetching data:', error);
+    }
+  };
+
+  const fetchConversations = async () => {
+    try {
+      const headers = getAuthHeaders();
+      const res = await fetch('/api/chat/conversations', { headers });
+      const data = await res.json();
+      
+      if (data.success) {
+        setConversations(data.conversations || []);
+        setTotalUnread(data.totalUnread || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
     }
   };
 
