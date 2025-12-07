@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Menu, X, Mail, Phone, Loader2, ExternalLink, Github, Instagram, Twitter, LogIn } from 'lucide-react';
 import Link from 'next/link';
+import ChatWidget from '@/components/ChatWidget';
 
 export default function App() {
   const [content, setContent] = useState(null);
