@@ -89,8 +89,10 @@ export default function AdminDashboard() {
       const storageData = await storageRes.json();
       setStorageItems(storageData.items || []);
 
-      // Fetch chat conversations
-      await fetchConversations();
+      // Fetch chat conversations (if user has permission)
+      if (authUser?.role === 'super_admin' || authUser?.permissions?.canAccessChat) {
+        await fetchConversations();
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
