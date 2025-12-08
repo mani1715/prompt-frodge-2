@@ -497,15 +497,17 @@ export default function AdminDashboard() {
               <FolderLock className="h-4 w-4 mr-2" />
               Private Storage
             </TabsTrigger>
-            <TabsTrigger value="chat" className="relative">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Messages
-              {totalUnread > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                  {totalUnread}
-                </span>
-              )}
-            </TabsTrigger>
+            {(user?.role === 'super_admin' || user?.permissions?.canAccessChat) && (
+              <TabsTrigger value="chat" className="relative">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Messages
+                {totalUnread > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {totalUnread}
+                  </span>
+                )}
+              </TabsTrigger>
+            )}
             {user?.role === 'super_admin' && (
               <TabsTrigger value="admins">Admins</TabsTrigger>
             )}
