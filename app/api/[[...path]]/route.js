@@ -89,7 +89,8 @@ async function handleRoute(request, { params }) {
         permissions: a.permissions || {
           canManageAdmins: a.role === 'super_admin',
           canViewPrivateProjects: true,
-          canAccessPrivateStorage: true
+          canAccessPrivateStorage: true,
+          canAccessChat: true
         }
       }));
       return handleCORS(NextResponse.json({ admins: sanitizedAdmins }));
