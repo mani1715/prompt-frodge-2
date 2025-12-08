@@ -35,8 +35,31 @@ async function handleRoute(request, { params }) {
         return handleCORS(NextResponse.json({ error: 'Invalid credentials' }, { status: 401 }));
       }
 
-      const token = generateToken({ id: admin.id, username: admin.username, role: admin.role });
-      return handleCORS(NextResponse.json({ token, admin: { id: admin.id, username: admin.username, role: admin.role } }));
+      const token = generateToken({ 
+        id: admin.id, 
+        username: admin.username, 
+        role: admin.role,
+        permissions: admin.permissions || {
+          canManageAdmins: admin.role === 'super_admin',
+          canViewPrivateProjects: true,
+          canAccessPrivateStorage: true,
+          canAccessChat: true
+        }
+      });
+      return handleCORS(NextResponse.json({ 
+        token, 
+        admin: { 
+          id: admin.id, 
+          username: admin.username, 
+          role: admin.role,
+          permissions: admin.permissions || {
+            canManageAdmins: admin.role === 'super_admin',
+            canViewPrivateProjects: true,
+            canAccessPrivateStorage: true,
+            canAccessChat: true
+          }
+        } 
+      }));
     }
 
     if (route === '/auth/verify' && method === 'GET') {
