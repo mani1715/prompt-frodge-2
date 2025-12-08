@@ -1540,6 +1540,18 @@ function AdminModal({ open, data, onClose, onSave, isSuperAdmin }) {
                     }
                   />
                 </div>
+                <div className="flex items-center justify-between">
+                  <Label className="font-normal">Can Access Chat/Messages</Label>
+                  <Switch
+                    checked={formData.permissions.canAccessChat}
+                    onCheckedChange={(checked) => 
+                      setFormData({ 
+                        ...formData, 
+                        permissions: { ...formData.permissions, canAccessChat: checked } 
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
           )}
