@@ -410,6 +410,24 @@ agent_communication:
   
   - agent: "main"
     message: |
+      🎯 ADMIN CHAT PERMISSION FEATURE ADDED!
+      
+      ✅ BACKEND - Admin Chat Permission:
+      - Added canAccessChat to admin permissions schema
+      - Default: true for all admins (can be controlled per admin)
+      - Super admins always have chat access
+      - Permission checks on all chat API endpoints (conversations, reply, mark read)
+      - JWT tokens now include permissions object
+      
+      ✅ FRONTEND - Admin Chat Permission UI:
+      - Admin Modal now has "Can Access Chat/Messages" permission toggle
+      - Messages tab only visible if user has canAccessChat permission
+      - Conversations only fetched for users with permission
+      
+      📋 READY FOR BACKEND TESTING - NEW PERMISSION SYSTEM
+      
+  - agent: "main"
+    message: |
       🎯 NEW FEATURES IMPLEMENTATION COMPLETE!
       
       ✅ BACKEND - Chat System APIs Added:
