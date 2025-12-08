@@ -310,6 +310,18 @@ frontend:
       - working: true
         agent: "main"
         comment: "Search already implemented - filters by title, content, and tags. Real-time filtering as user types"
+        
+  - task: "Admin chat access permission"
+    implemented: true
+    working: "NA"
+    file: "/app/app/admin/dashboard/page.js, /app/app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added canAccessChat permission to admin system. Super admins get chat access by default. Regular admins can be granted chat access via permission checkbox in Admin Modal. Messages tab only visible to admins with permission. Backend API enforces permission checks on all chat endpoints."
 
 metadata:
   created_by: "main_agent"
