@@ -747,6 +747,11 @@ async function handleRoute(request, { params }) {
         return handleCORS(NextResponse.json({ error: authCheck.error }, { status: authCheck.status }));
       }
 
+      // Check chat access permission
+      if (authCheck.user.role !== 'super_admin' && !authCheck.user.permissions?.canAccessChat) {
+        return handleCORS(NextResponse.json({ error: 'Forbidden: Chat access not permitted' }, { status: 403 }));
+      }
+
       const chats = await getCollection('chats');
       const conversations = await chats.find({}).sort({ lastMessageAt: -1 }).toArray();
       
