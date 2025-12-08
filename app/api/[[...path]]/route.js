@@ -114,7 +114,8 @@ async function handleRoute(request, { params }) {
       const defaultPermissions = {
         canManageAdmins: false,
         canViewPrivateProjects: true,
-        canAccessPrivateStorage: true
+        canAccessPrivateStorage: true,
+        canAccessChat: true
       };
 
       const newAdmin = {
@@ -125,7 +126,8 @@ async function handleRoute(request, { params }) {
         permissions: role === 'super_admin' ? {
           canManageAdmins: true,
           canViewPrivateProjects: true,
-          canAccessPrivateStorage: true
+          canAccessPrivateStorage: true,
+          canAccessChat: true
         } : (permissions || defaultPermissions),
         createdAt: new Date(),
         createdBy: authCheck.user.username
