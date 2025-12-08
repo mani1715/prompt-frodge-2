@@ -332,6 +332,7 @@ metadata:
 test_plan:
   current_focus:
     - "Chat system API routes"
+    - "Admin chat access permission"
     - "Floating chat widget on homepage"
     - "Admin Messages/Chat tab"
     - "Private Storage - Folder upload"
