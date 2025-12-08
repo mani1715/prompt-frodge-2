@@ -85,13 +85,32 @@ async function handleRoute(request, { params }) {
         username,
         password: hashedPassword,
         role: 'super_admin',
+        permissions: {
+          canManageAdmins: true,
+          canViewPrivateProjects: true,
+          canAccessPrivateStorage: true,
+          canAccessChat: true
+        },
         createdAt: new Date(),
         createdBy: 'system'
       };
 
       await admins.insertOne(newAdmin);
-      const token = generateToken({ id: newAdmin.id, username: newAdmin.username, role: newAdmin.role });
-      return handleCORS(NextResponse.json({ token, admin: { id: newAdmin.id, username: newAdmin.username, role: newAdmin.role } }));
+      const token = generateToken({ 
+        id: newAdmin.id, 
+        username: newAdmin.username, 
+        role: newAdmin.role,
+        permissions: newAdmin.permissions
+      });
+      return handleCORS(NextResponse.json({ 
+        token, 
+        admin: { 
+          id: newAdmin.id, 
+          username: newAdmin.username, 
+          role: newAdmin.role,
+          permissions: newAdmin.permissions
+        } 
+      }));
     }
 
     // Admin Management Routes (Super Admin Only)
