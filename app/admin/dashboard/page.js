@@ -1029,7 +1029,8 @@ export default function AdminDashboard() {
                 )}
               </Card>
             </div>
-          </TabsContent>
+            </TabsContent>
+          )}
 
           {/* Admins Tab */}
           {user?.role === 'super_admin' && (
