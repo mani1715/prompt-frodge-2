@@ -1405,7 +1405,8 @@ function AdminModal({ open, data, onClose, onSave, isSuperAdmin }) {
     permissions: {
       canManageAdmins: false,
       canViewPrivateProjects: true,
-      canAccessPrivateStorage: true
+      canAccessPrivateStorage: true,
+      canAccessChat: true
     }
   });
 
@@ -1418,7 +1419,8 @@ function AdminModal({ open, data, onClose, onSave, isSuperAdmin }) {
         permissions: data.permissions || {
           canManageAdmins: false,
           canViewPrivateProjects: true,
-          canAccessPrivateStorage: true
+          canAccessPrivateStorage: true,
+          canAccessChat: true
         }
       });
     } else {
@@ -1429,7 +1431,8 @@ function AdminModal({ open, data, onClose, onSave, isSuperAdmin }) {
         permissions: {
           canManageAdmins: false,
           canViewPrivateProjects: true,
-          canAccessPrivateStorage: true
+          canAccessPrivateStorage: true,
+          canAccessChat: true
         }
       });
     }
