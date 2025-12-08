@@ -890,8 +890,9 @@ export default function AdminDashboard() {
           </TabsContent>
 
           {/* Chat/Messages Tab */}
-          <TabsContent value="chat">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {(user?.role === 'super_admin' || user?.permissions?.canAccessChat) && (
+            <TabsContent value="chat">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Conversations List */}
               <Card className="lg:col-span-1">
                 <CardHeader>
