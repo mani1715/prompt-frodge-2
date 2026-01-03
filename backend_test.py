@@ -1279,6 +1279,10 @@ class MSPNBackendTester:
             self.test_projects_visibility()
             self.test_skills_api()
             self.test_file_upload()
+            self.test_chat_system()
+            self.test_admin_chat_permissions()
+            self.test_contact_form()
+            self.test_services_and_content_apis()
         else:
             print("❌ Authentication failed - skipping other tests")
             
