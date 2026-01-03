@@ -345,12 +345,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Chat system API routes"
-    - "Admin chat access permission"
-    - "Floating chat widget on homepage"
-    - "Admin Messages/Chat tab"
-    - "Private Storage - Folder upload"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
