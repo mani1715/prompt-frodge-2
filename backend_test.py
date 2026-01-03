@@ -93,10 +93,10 @@ class MSPNBackendTester:
         """Test 1: Authentication & Admin Login"""
         print("=== Testing Authentication & Admin Login ===")
         
-        # Test login with valid credentials
+        # Test login with valid credentials (try default admin credentials)
         login_data = {
-            "username": "superadmin",
-            "password": "SuperAdmin123!"
+            "username": "admin",
+            "password": "admin123"
         }
         
         response = self.make_request("POST", "/auth/login", login_data)
