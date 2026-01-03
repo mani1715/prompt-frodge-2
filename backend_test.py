@@ -714,6 +714,559 @@ class MSPNBackendTester:
             except:
                 pass
 
+    def test_chat_system(self):
+        """Test 7: Chat System APIs"""
+        print("=== Testing Chat System APIs ===")
+        
+        # Test POST /api/chat/send - Customer sends message (no auth required)
+        customer_message_data = {
+            "customerName": "John Doe",
+            "customerEmail": "john.doe@example.com",
+            "customerPhone": "+1234567890",
+            "message": "Hello, I need help with my project"
+        }
+        
+        # Remove auth token for customer message
+        temp_token = self.auth_token
+        self.auth_token = None
+        
+        send_response = self.make_request("POST", "/chat/send", customer_message_data)
+        
+        if send_response.get("success"):
+            chat_data = send_response.get("data", {})
+            chat_id = chat_data.get("chatId")
+            conversation = chat_data.get("conversation")
+            
+            if chat_id and conversation:
+                self.log_test(
+                    "Customer Send Message",
+                    True,
+                    f"Customer message sent successfully, chat ID: {chat_id}"
+                )
+                
+                # Test GET /api/chat/history - Cross-device sync (no auth required)
+                history_response = self.make_request("GET", f"/chat/history?email={customer_message_data['customerEmail']}")
+                
+                if history_response.get("success"):
+                    history_conversation = history_response.get("data", {}).get("conversation")
+                    if history_conversation and history_conversation.get("id") == chat_id:
+                        self.log_test(
+                            "Chat History - Cross-device Sync",
+                            True,
+                            f"Successfully retrieved chat history for email {customer_message_data['customerEmail']}"
+                        )
+                    else:
+                        self.log_test(
+                            "Chat History - Cross-device Sync",
+                            False,
+                            "Chat history not found or incorrect",
+                            history_conversation
+                        )
+                else:
+                    self.log_test(
+                        "Chat History - Cross-device Sync",
+                        False,
+                        "Failed to retrieve chat history",
+                        history_response.get("data")
+                    )
+                
+                # Restore auth token for admin operations
+                self.auth_token = temp_token
+                
+                if self.auth_token:
+                    # Test GET /api/chat/conversations - Admin get all conversations
+                    conversations_response = self.make_request("GET", "/chat/conversations")
+                    
+                    if conversations_response.get("success"):
+                        conversations_data = conversations_response.get("data", {})
+                        conversations = conversations_data.get("conversations", [])
+                        total_unread = conversations_data.get("totalUnread", 0)
+                        
+                        test_conversation = next((c for c in conversations if c.get("id") == chat_id), None)
+                        
+                        if test_conversation:
+                            self.log_test(
+                                "Admin Get Conversations",
+                                True,
+                                f"Admin retrieved {len(conversations)} conversations, {total_unread} unread messages"
+                            )
+                            
+                            # Test POST /api/chat/:id/reply - Admin reply
+                            admin_reply_data = {
+                                "message": "Thank you for contacting us! We'll help you with your project."
+                            }
+                            
+                            reply_response = self.make_request("POST", f"/chat/{chat_id}/reply", admin_reply_data)
+                            
+                            if reply_response.get("success"):
+                                self.log_test(
+                                    "Admin Reply to Chat",
+                                    True,
+                                    "Admin successfully replied to customer message"
+                                )
+                                
+                                # Test PUT /api/chat/:id/read - Mark as read
+                                read_response = self.make_request("PUT", f"/chat/{chat_id}/read")
+                                
+                                if read_response.get("success"):
+                                    self.log_test(
+                                        "Mark Chat as Read",
+                                        True,
+                                        "Successfully marked conversation as read"
+                                    )
+                                else:
+                                    self.log_test(
+                                        "Mark Chat as Read",
+                                        False,
+                                        "Failed to mark conversation as read",
+                                        read_response.get("data")
+                                    )
+                                    
+                            else:
+                                self.log_test(
+                                    "Admin Reply to Chat",
+                                    False,
+                                    "Failed to send admin reply",
+                                    reply_response.get("data")
+                                )
+                                
+                        else:
+                            self.log_test(
+                                "Admin Get Conversations",
+                                False,
+                                "Test conversation not found in admin conversations",
+                                conversations
+                            )
+                    else:
+                        self.log_test(
+                            "Admin Get Conversations",
+                            False,
+                            "Failed to retrieve conversations",
+                            conversations_response.get("data")
+                        )
+                        
+                    # Test sending another message to same conversation
+                    self.auth_token = None
+                    
+                    second_message_data = {
+                        "customerName": "John Doe",
+                        "customerEmail": "john.doe@example.com",
+                        "customerPhone": "+1234567890",
+                        "message": "Thank you for the quick response!"
+                    }
+                    
+                    second_send_response = self.make_request("POST", "/chat/send", second_message_data)
+                    
+                    if second_send_response.get("success"):
+                        second_chat_data = second_send_response.get("data", {})
+                        if second_chat_data.get("chatId") == chat_id:
+                            self.log_test(
+                                "Customer Send Follow-up Message",
+                                True,
+                                "Customer successfully sent follow-up message to existing conversation"
+                            )
+                        else:
+                            self.log_test(
+                                "Customer Send Follow-up Message",
+                                False,
+                                "Follow-up message created new conversation instead of updating existing",
+                                second_chat_data
+                            )
+                    else:
+                        self.log_test(
+                            "Customer Send Follow-up Message",
+                            False,
+                            "Failed to send follow-up message",
+                            second_send_response.get("data")
+                        )
+                    
+                    # Restore auth token
+                    self.auth_token = temp_token
+                    
+            else:
+                self.log_test(
+                    "Customer Send Message",
+                    False,
+                    "No chat ID or conversation returned",
+                    send_response.get("data")
+                )
+        else:
+            self.log_test(
+                "Customer Send Message",
+                False,
+                "Failed to send customer message",
+                send_response.get("data")
+            )
+            # Restore auth token
+            self.auth_token = temp_token
+
+    def test_admin_chat_permissions(self):
+        """Test 8: Admin Chat Access Permissions"""
+        print("=== Testing Admin Chat Access Permissions ===")
+        
+        if not self.auth_token:
+            self.log_test("Admin Chat Permissions", False, "No auth token available")
+            return False
+            
+        # Create a test admin without chat permissions
+        test_admin_data = {
+            "username": "testadmin_nochat",
+            "password": "test123",
+            "role": "admin",
+            "permissions": {
+                "canManageAdmins": False,
+                "canViewPrivateProjects": True,
+                "canAccessPrivateStorage": True,
+                "canAccessChat": False  # No chat access
+            }
+        }
+        
+        create_response = self.make_request("POST", "/admins", test_admin_data)
+        
+        if create_response.get("success"):
+            created_admin = create_response.get("data", {}).get("admin")
+            admin_id = created_admin.get("id")
+            
+            self.log_test(
+                "Create Admin without Chat Permission",
+                True,
+                f"Created admin {created_admin.get('username')} without chat access"
+            )
+            
+            # Login as the new admin
+            login_data = {
+                "username": "testadmin_nochat",
+                "password": "test123"
+            }
+            
+            login_response = self.make_request("POST", "/auth/login", login_data)
+            
+            if login_response.get("success"):
+                # Store original token
+                original_token = self.auth_token
+                # Use new admin token
+                self.auth_token = login_response.get("data", {}).get("token")
+                
+                # Test that admin without chat permission cannot access chat endpoints
+                conversations_response = self.make_request("GET", "/chat/conversations")
+                
+                if not conversations_response.get("success") and conversations_response.get("status_code") == 403:
+                    self.log_test(
+                        "Chat Permission Check - Conversations",
+                        True,
+                        "Admin without chat permission correctly denied access to conversations"
+                    )
+                else:
+                    self.log_test(
+                        "Chat Permission Check - Conversations",
+                        False,
+                        "Admin without chat permission should be denied access",
+                        conversations_response.get("data")
+                    )
+                
+                # Test reply endpoint (should also be denied)
+                reply_response = self.make_request("POST", "/chat/dummy-id/reply", {"message": "test"})
+                
+                if not reply_response.get("success") and reply_response.get("status_code") == 403:
+                    self.log_test(
+                        "Chat Permission Check - Reply",
+                        True,
+                        "Admin without chat permission correctly denied access to reply"
+                    )
+                else:
+                    self.log_test(
+                        "Chat Permission Check - Reply",
+                        False,
+                        "Admin without chat permission should be denied reply access",
+                        reply_response.get("data")
+                    )
+                
+                # Restore original token
+                self.auth_token = original_token
+                
+                # Update admin to grant chat permission
+                update_data = {
+                    "permissions": {
+                        "canManageAdmins": False,
+                        "canViewPrivateProjects": True,
+                        "canAccessPrivateStorage": True,
+                        "canAccessChat": True  # Grant chat access
+                    }
+                }
+                
+                update_response = self.make_request("PUT", f"/admins/{admin_id}", update_data)
+                
+                if update_response.get("success"):
+                    self.log_test(
+                        "Update Admin Chat Permission",
+                        True,
+                        "Successfully granted chat permission to admin"
+                    )
+                    
+                    # Login again to get updated token with new permissions
+                    new_login_response = self.make_request("POST", "/auth/login", login_data)
+                    
+                    if new_login_response.get("success"):
+                        # Use updated token
+                        self.auth_token = new_login_response.get("data", {}).get("token")
+                        
+                        # Test that admin now has chat access
+                        new_conversations_response = self.make_request("GET", "/chat/conversations")
+                        
+                        if new_conversations_response.get("success"):
+                            self.log_test(
+                                "Chat Permission Check - After Update",
+                                True,
+                                "Admin with chat permission can now access conversations"
+                            )
+                        else:
+                            self.log_test(
+                                "Chat Permission Check - After Update",
+                                False,
+                                "Admin with chat permission should have access",
+                                new_conversations_response.get("data")
+                            )
+                        
+                        # Restore original token
+                        self.auth_token = original_token
+                        
+                else:
+                    self.log_test(
+                        "Update Admin Chat Permission",
+                        False,
+                        "Failed to update admin chat permission",
+                        update_response.get("data")
+                    )
+                    
+            else:
+                self.log_test(
+                    "Login Test Admin",
+                    False,
+                    "Failed to login as test admin",
+                    login_response.get("data")
+                )
+                
+            # Clean up - delete test admin
+            if admin_id:
+                delete_response = self.make_request("DELETE", f"/admins/{admin_id}")
+                if delete_response.get("success"):
+                    print("   Cleaned up test admin")
+                    
+        else:
+            self.log_test(
+                "Create Admin without Chat Permission",
+                False,
+                "Failed to create test admin",
+                create_response.get("data")
+            )
+
+    def test_contact_form(self):
+        """Test 9: Contact Form (Expected to fail without Brevo API key)"""
+        print("=== Testing Contact Form ===")
+        
+        # Test contact info retrieval
+        contact_info_response = self.make_request("GET", "/contact/info")
+        
+        if contact_info_response.get("success"):
+            contact_info = contact_info_response.get("data", {}).get("contact")
+            if contact_info:
+                self.log_test(
+                    "Get Contact Info",
+                    True,
+                    f"Retrieved contact info: {contact_info.get('email')}"
+                )
+            else:
+                self.log_test(
+                    "Get Contact Info",
+                    False,
+                    "No contact info returned",
+                    contact_info_response.get("data")
+                )
+        else:
+            self.log_test(
+                "Get Contact Info",
+                False,
+                "Failed to retrieve contact info",
+                contact_info_response.get("data")
+            )
+        
+        # Test contact form submission (expected to fail without Brevo API key)
+        contact_form_data = {
+            "name": "Test User",
+            "email": "test@example.com",
+            "message": "This is a test message from the contact form."
+        }
+        
+        # Remove auth token for public contact form
+        temp_token = self.auth_token
+        self.auth_token = None
+        
+        contact_response = self.make_request("POST", "/contact/send", contact_form_data)
+        
+        # Restore auth token
+        self.auth_token = temp_token
+        
+        if not contact_response.get("success") and contact_response.get("status_code") == 500:
+            self.log_test(
+                "Contact Form Submission",
+                True,
+                "Contact form correctly failed due to missing Brevo API key (expected behavior)"
+            )
+        elif contact_response.get("success"):
+            self.log_test(
+                "Contact Form Submission",
+                True,
+                "Contact form submission successful (Brevo API key configured)"
+            )
+        else:
+            self.log_test(
+                "Contact Form Submission",
+                False,
+                "Unexpected contact form response",
+                contact_response.get("data")
+            )
+
+    def test_services_and_content_apis(self):
+        """Test 10: Services and Content APIs"""
+        print("=== Testing Services and Content APIs ===")
+        
+        # Test GET /api/services
+        services_response = self.make_request("GET", "/services")
+        
+        if services_response.get("success"):
+            services = services_response.get("data", {}).get("services", [])
+            self.log_test(
+                "Get Services",
+                True,
+                f"Retrieved {len(services)} services"
+            )
+        else:
+            self.log_test(
+                "Get Services",
+                False,
+                "Failed to retrieve services",
+                services_response.get("data")
+            )
+        
+        # Test GET /api/content
+        content_response = self.make_request("GET", "/content")
+        
+        if content_response.get("success"):
+            content = content_response.get("data", {}).get("content")
+            if content and content.get("hero") and content.get("about"):
+                self.log_test(
+                    "Get Site Content",
+                    True,
+                    "Retrieved site content with hero and about sections"
+                )
+            else:
+                self.log_test(
+                    "Get Site Content",
+                    False,
+                    "Site content missing required sections",
+                    content
+                )
+        else:
+            self.log_test(
+                "Get Site Content",
+                False,
+                "Failed to retrieve site content",
+                content_response.get("data")
+            )
+        
+        if self.auth_token:
+            # Test authenticated operations
+            
+            # Test POST /api/services
+            service_data = {
+                "title": "Test Service",
+                "description": "Test service description",
+                "icon": "🧪"
+            }
+            
+            create_service_response = self.make_request("POST", "/services", service_data)
+            
+            if create_service_response.get("success"):
+                created_service = create_service_response.get("data", {}).get("service")
+                service_id = created_service.get("id")
+                
+                self.log_test(
+                    "Create Service",
+                    True,
+                    f"Created service '{created_service.get('title')}'"
+                )
+                
+                # Test PUT /api/services/:id
+                update_data = {
+                    "title": "Updated Test Service",
+                    "description": "Updated description"
+                }
+                
+                update_service_response = self.make_request("PUT", f"/services/{service_id}", update_data)
+                
+                if update_service_response.get("success"):
+                    self.log_test(
+                        "Update Service",
+                        True,
+                        "Successfully updated service"
+                    )
+                else:
+                    self.log_test(
+                        "Update Service",
+                        False,
+                        "Failed to update service",
+                        update_service_response.get("data")
+                    )
+                
+                # Test DELETE /api/services/:id
+                delete_service_response = self.make_request("DELETE", f"/services/{service_id}")
+                
+                if delete_service_response.get("success"):
+                    self.log_test(
+                        "Delete Service",
+                        True,
+                        "Successfully deleted service"
+                    )
+                else:
+                    self.log_test(
+                        "Delete Service",
+                        False,
+                        "Failed to delete service",
+                        delete_service_response.get("data")
+                    )
+                    
+            else:
+                self.log_test(
+                    "Create Service",
+                    False,
+                    "Failed to create service",
+                    create_service_response.get("data")
+                )
+            
+            # Test PUT /api/content
+            content_update_data = {
+                "hero": {
+                    "title": "Updated MSPN DEV",
+                    "tagline": "Updated tagline for testing"
+                }
+            }
+            
+            update_content_response = self.make_request("PUT", "/content", content_update_data)
+            
+            if update_content_response.get("success"):
+                self.log_test(
+                    "Update Site Content",
+                    True,
+                    "Successfully updated site content"
+                )
+            else:
+                self.log_test(
+                    "Update Site Content",
+                    False,
+                    "Failed to update site content",
+                    update_content_response.get("data")
+                )
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting MSPN DEV Backend API Tests")
