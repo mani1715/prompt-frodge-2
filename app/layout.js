@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Next.js MongoDB Template',
-  description: 'A simple template with App Router, MongoDB, and shadcn/ui',
+  title: 'PROMPT FORGE - Crafting AI Excellence',
+  description: 'Transform ideas into powerful digital solutions using cutting-edge AI and modern web technologies',
 }
 
 export default function RootLayout({ children }) {
