@@ -232,20 +232,20 @@ async function handleRoute(request, { params }) {
         siteContent = {
           id: uuidv4(),
           hero: {
-            title: 'MSPN DEV',
-            tagline: 'Crafting Digital Excellence with Cutting-Edge Technology',
-            description: 'We transform ideas into powerful digital solutions using modern web technologies and AI-assisted development.',
+            title: 'Prompt Forge',
+            tagline: 'Crafting AI Excellence with Cutting-Edge Technology',
+            description: 'We transform ideas into powerful AI solutions using modern technologies and intelligent prompt engineering.',
             ctaButtons: [
               { text: 'View Services', link: '#services' },
               { text: 'Contact Us', link: '#contact' }
             ]
           },
           about: {
-            title: 'About MSPN DEV',
-            description: 'MSPN DEV is a modern web development company specializing in AI-assisted development, web and app development, and delivering clean, fast, and modern solutions. We combine cutting-edge technology with creative design to build exceptional digital experiences.'
+            title: 'About Prompt Forge',
+            description: 'Prompt Forge is a modern AI development company specializing in prompt engineering, AI-assisted development, and intelligent solutions. We combine cutting-edge AI technology with creative design to build exceptional digital experiences.'
           },
           footer: {
-            text: '© MSPN DEV — All Rights Reserved'
+            text: '© Prompt Forge — All Rights Reserved'
           },
           theme: {
             mode: 'light',
