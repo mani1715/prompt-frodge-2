@@ -13,7 +13,7 @@ async function initAdmin() {
     await client.connect();
     console.log('Connected to MongoDB');
     
-    const db = client.db(process.env.DB_NAME || 'mspndev');
+    const db = client.db(process.env.DB_NAME || 'promptforge');
     const admins = db.collection('admins');
     
     // Check if super admin exists
