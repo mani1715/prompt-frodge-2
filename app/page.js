@@ -102,7 +102,7 @@ export default function App() {
               animate={{ opacity: 1, x: 0 }}
               className="text-2xl font-bold"
             >
-              {content?.hero?.title || 'MSPN DEV'}
+              <span className="neon-glow-strong">{content?.hero?.title || 'Prompt Forge'}</span>
             </motion.div>
 
             {/* Desktop Menu */}
@@ -190,7 +190,7 @@ export default function App() {
             transition={{ duration: 0.8 }}
             className="text-6xl md:text-8xl font-bold mb-6"
           >
-            {content?.hero?.title || 'MSPN DEV'}
+            <span className="neon-glow-strong">{content?.hero?.title || 'Prompt Forge'}</span>
           </motion.h1>
           
           <motion.p
@@ -521,7 +521,7 @@ export default function App() {
       {/* Footer */}
       <footer className="py-8 px-4 sm:px-6 lg:px-8 border-t border-border">
         <div className="max-w-7xl mx-auto text-center text-muted-foreground">
-          <p>{content?.footer?.text || '© MSPN DEV — All Rights Reserved'}</p>
+          <p>{content?.footer?.text || '© Prompt Forge — All Rights Reserved'}</p>
         </div>
       </footer>
 
