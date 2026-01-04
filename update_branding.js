@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017';
-const DB_NAME = process.env.DB_NAME || 'mspndev';
+const DB_NAME = process.env.DB_NAME || 'promptforge';
 
 async function updateBranding() {
     const client = new MongoClient(MONGO_URL);
@@ -42,7 +42,7 @@ async function updateBranding() {
         console.log(`✓ Updated ${contactResult.modifiedCount} contact document(s)`);
         
         console.log('\n✅ Branding update complete!');
-        console.log('   MSPN DEV → PROMPT FORGE');
+        console.log('   Prompt Forge - AI Excellence');
         console.log('   Neon Blue theme applied\n');
         
     } catch (error) {
