@@ -345,9 +345,14 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Verify all backend APIs after environment setup"
+    - "Test admin authentication and permissions"
+    - "Test projects, skills, services CRUD"
+    - "Test private storage functionality"
+    - "Test chat system APIs"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 
 agent_communication:
