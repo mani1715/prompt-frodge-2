@@ -103,7 +103,7 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Building MSPN DEV website from GitHub code. User requested the following features:
+  Building Prompt Forge website from GitHub code. User requested the following features:
   
   PREVIOUS FEATURES (COMPLETED):
   1. Center edit forms (modal style) - show all fields at once, remove step-by-step flow ✅
