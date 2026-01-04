@@ -478,7 +478,7 @@ async function handleRoute(request, { params }) {
       if (!contactInfo) {
         contactInfo = {
           id: uuidv4(),
-          email: 'mspndev.in@gmail.com',
+          email: 'promptfordge@gmail.com',
           phone: '8328284501',
           socialLinks: [
             { name: 'Instagram', url: '', icon: 'instagram' },
