@@ -1,6 +1,6 @@
-# MSPN DEV - Complete Developer Website with Admin Panel
+# Prompt Forge - Complete AI Development Website with Admin Panel
 
-A modern, fully-featured developer website with a powerful admin panel for complete content management.
+A modern, fully-featured AI development website with a powerful admin panel for complete content management.
 
 ## 🚀 Features
 
@@ -44,16 +44,16 @@ The following environment variables are configured in `.env`:
 ```env
 # Database
 MONGO_URL=mongodb://localhost:27017
-DB_NAME=mspndev
+DB_NAME=promptforge
 
 # Application
 NEXT_PUBLIC_BASE_URL=your_production_url
 
 # Brevo Email (REQUIRED for contact form)
 BREVO_API_KEY=your_brevo_api_key
-ADMIN_EMAIL=mspndev.in@gmail.com
-BREVO_SENDER_EMAIL=noreply@mspndev.com
-BREVO_SENDER_NAME=MSPN DEV
+ADMIN_EMAIL=promptfordge@gmail.com
+BREVO_SENDER_EMAIL=noreply@promptfordge.com
+BREVO_SENDER_NAME=Prompt Forge
 
 # Security
 JWT_SECRET=your_random_secret_key
@@ -200,7 +200,7 @@ When deploying, make sure to set these environment variables:
 
 ```env
 MONGO_URL=your_production_mongodb_url
-DB_NAME=mspndev
+DB_NAME=promptforge
 NEXT_PUBLIC_BASE_URL=https://yourdomain.com
 BREVO_API_KEY=your_brevo_api_key
 ADMIN_EMAIL=your_email@domain.com
@@ -333,7 +333,7 @@ Update `socialLinks` array in contact info via admin panel or database.
 
 ## 📞 Support
 
-- Contact form notifications go to: ${process.env.ADMIN_EMAIL || 'mspndev.in@gmail.com'}
+- Contact form notifications go to: ${process.env.ADMIN_EMAIL || 'promptfordge@gmail.com'}
 - Phone: ${process.env.ADMIN_PHONE || '8328284501'}
 
 ## 🎉 Default Credentials
@@ -346,6 +346,6 @@ Update `socialLinks` array in contact info via admin panel or database.
 
 ---
 
-Built with ❤️ for MSPN DEV
+Built with ❤️ for Prompt Forge
 
 **Happy Building! 🚀**
