@@ -529,12 +529,12 @@ async function handleRoute(request, { params }) {
               <p style="background: #f5f5f5; padding: 15px; border-radius: 5px;">${message.replace(/\n/g, '<br>')}</p>
             </div>
             <hr style="margin: 20px 0;">
-            <p style="color: #666; font-size: 12px;">This email was sent from the MSPN DEV contact form.</p>
+            <p style="color: #666; font-size: 12px;">This email was sent from the Prompt Forge contact form.</p>
           </div>
         `;
 
         await sendBrevoEmail({
-          to: [{ email: contactInfo.email || process.env.ADMIN_EMAIL, name: 'MSPN DEV Admin' }],
+          to: [{ email: contactInfo.email || process.env.ADMIN_EMAIL, name: 'Prompt Forge Admin' }],
           subject: `New Contact Form: Message from ${name}`,
           htmlContent: adminEmailHtml,
           replyTo: { email, name }
