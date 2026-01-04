@@ -258,7 +258,7 @@ export default function App() {
           </motion.h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {skills.map((skill, idx) => (
+            {skills?.map((skill, idx) => (
               <motion.div
                 key={skill.id}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -292,7 +292,7 @@ export default function App() {
           </motion.h2>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, idx) => (
+            {services?.map((service, idx) => (
               <motion.div
                 key={service.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -326,11 +326,11 @@ export default function App() {
             Projects
           </motion.h2>
 
-          {projects.length === 0 ? (
+          {!projects || projects.length === 0 ? (
             <p className="text-center text-muted-foreground text-lg">No projects yet. Check back soon!</p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project, idx) => (
+              {projects?.map((project, idx) => (
                 <motion.div
                   key={project.id}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -353,7 +353,7 @@ export default function App() {
                       <CardDescription>{project.description}</CardDescription>
                       {project.techStack && project.techStack.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">
-                          {project.techStack.map((tech, i) => (
+                          {project.techStack?.map((tech, i) => (
                             <span key={i} className="text-xs bg-primary/10 px-2 py-1 rounded">
                               {tech}
                             </span>
@@ -435,7 +435,7 @@ export default function App() {
                   <CardContent className="pt-6">
                     <p className="text-sm text-muted-foreground mb-4">Follow Us</p>
                     <div className="flex gap-4">
-                      {contactInfo.socialLinks.map((social, idx) => {
+                      {contactInfo.socialLinks?.map((social, idx) => {
                         const Icon = socialIcons[social.icon] || ExternalLink;
                         return social.url ? (
                           <a
